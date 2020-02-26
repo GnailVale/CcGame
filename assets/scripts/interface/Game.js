@@ -22,7 +22,7 @@ cc.Class({
             default: null,
             type: cc.Label
         },
-        
+
         useridLabel: {
             default: null,
             type: cc.Label
@@ -33,13 +33,14 @@ cc.Class({
         },
         score:0,
         userScores:[],
+        sendPos:"",
     },
 
 
     onLoad: function () {
         console.log(GameData.totolUser);
         this.initMatchvsEvent(this);
-        
+
         this.useridLabel.string = "用户Id:" + GameData.userID;
         console.log(this.players[1].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string)
         // console.log(this.players[1].getChildByName("playerLabel").getComponent(cc.Label).string)
@@ -47,57 +48,70 @@ cc.Class({
             if(GameData.totolUser[i].userID !=GameData.userID){
                 this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string = GameData.totolUser[i].userID;
             }
-                    
+
         }
-        
+
         var _that = this;
         let myScorce = {userID:GameData.userID,Score:this.score};
-        
+
         this.userScores.push(myScorce);
         this.scoreDisplays = [this.scoreDisplays0,this.scoreDisplays1];
         // console.log(this.userScore);
         this.giveFood.on(cc.Node.EventType.TOUCH_END,function(event){
-            
+
             for (let i = 0; i < _that.players.length; i++) {
                 // (!_that.players[i]) && (_that.players[i] = _that.node.getChildByName("Player" + (i + 1)).node);
                 var lableId = _that.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
-                 console.log(lableId)
+                console.log(lableId)
                 //  console.log(GameData.userID)
                 if(lableId == "我"){
-                    console.log('店家')
-                    console.log(_that.scoreDisplays0.string)
+                    // console.log('店家')
+                    // console.log(_that.scoreDisplays0.string)
                     _that.userScores[i].Score++;
                     _that.scoreDisplays[i].string = _that.userScores[i].Score ;
                 }
-               
+
                 _that.sendEvent(_that.userScores[i]);
-                
+
             }
         })
-        
-        this.moveObj(this.players[1])
-        // for (let i = 0; i < this.players.length; i++) {
-        //     var lableId = this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string;
-        //      console.log(lableId)
-        //     //  console.log(GameData.userID)
-        //     if(lableId == "我"){
-        //         console.log('店家')
-        //         // this.moveObj(this.players[i])
-        //     }
-            
-        // }
-        
-        
-        
+
+        // this.moveObj(this.players[1])
+        for (let i = 0; i < this.players.length; i++) {
+            var lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+            console.log(lableId)
+            //  console.log(GameData.userID)
+            if(lableId == "我"){
+                // console.log(this.players[i])
+                this.moveObj(this.players[i])
+            }
+
+        }
+
+
+
+    },
+    initMatchvsEvent(self) {
+        //在应用开始时手动绑定一下所有的回调事件
+        response.prototype.bind();
+        response.prototype.init(self);
+        this.node.on(msg.MATCHVS_SEND_EVENT_RSP, this.sendEventResponse, this);
+        this.node.on(msg.MATCHVS_SEND_EVENT_NOTIFY, this.sendEventNotify, this);
+    },
+
+    /**
+     * 移除监听
+     */
+    removeEvent() {
+        this.node.off(msg.MATCHVS_SEND_EVENT_RSP, this.sendEventResponse, this);
+        this.node.off(msg.MATCHVS_SEND_EVENT_NOTIFY, this.sendEventNotify, this);
     },
 
     //触摸物体移动
     moveObj:function(nameStr){
-        console.log('dddddddddd')
         console.log(nameStr)
         let nameAni = nameStr.getChildByName("AnimNode")
-        console.log(this.players[0])
-        
+
         this.node.on('touchstart', function (event) {
             var pos = event.getLocation();
             pos = this.node.convertToNodeSpaceAR(pos);
@@ -105,23 +119,31 @@ cc.Class({
             var end = pos;
             cc.log(start);
             cc.log(pos);
-            // dogLevel.setPosition(pos); 
+            // dogLevel.setPosition(pos);
             // var ros = this.getAngle(start,end);
             // nameAni.rotation = ros;
             // cc.log(nameAni.rotation);
-            var index = this.getDirection(start,pos);
+            var index = this.getDirection(start,end);
             console.log(index);
             // var animCtrl = nameStr.getComponent(cc.Animation);
             var animCtrl = nameStr.getChildByName("AnimNode").getComponent(cc.Animation)
-            console.log(animCtrl)
-            
+
             var clips = animCtrl.getClips();
-            console.log(clips);
-            console.log(clips[index].name)
+            this.sendPos = {
+                "endPosition":end,
+                "index":index,
+                "userID":GameData.userID,
+            }
+            this.sendEvent(this.sendPos);
+
             if(animCtrl.currentClip == null || animCtrl.currentClip.name != clips[index].name ){
                 animCtrl.play(clips[index].name);
             }
-            this.moveToPoint(pos,animCtrl);
+            ////y 轴超过某个区域后不移动
+            if(end.y > -180 && end.y < 140){
+                this.moveToPoint(end,animCtrl);
+            }
+
             // for(let i=0;i<scatterFood.length;i++){
             //     let scX = scatterFood[i].x;
             //     let scY = scatterFood[i].y;
@@ -138,12 +160,34 @@ cc.Class({
             //         },t*1000)
             //     }
             // }
-            
+
         }, this);
+    },
+    ///同步移动
+    synMove:function(param){
+        let getparam = JSON.parse(param);
+        for(let i=0;i<this.players.length;i++){
+            let lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+            if(lableId == getparam.userID){
+                console.log("同步移动");
+                // let moveTo1 = cc.moveTo(1,getparam.endPosition);
+                // this.players[i].getChildByName("AnimNode").runAction(moveTo1);
+
+                let index = getparam.index;
+                let animCtrl = this.players[i].getChildByName("AnimNode").getComponent(cc.Animation)
+                let clips = animCtrl.getClips();
+
+                if(animCtrl.currentClip == null || animCtrl.currentClip.name != clips[index].name ){
+                    animCtrl.play(clips[index].name);
+                }
+                this.moveToPoint(getparam.endPosition,animCtrl);
+            }
+        }
+        console.log(getparam)
     },
     moveToPoint:function(point,nameStr){
         console.log(point);
-
+        console.log(nameStr);
         var start = nameStr.node.getPosition();
         if(this.m_moveToAction != null){
             nameStr.node.stopAction(this.m_moveToAction)
@@ -161,10 +205,16 @@ cc.Class({
     sendEvent(info) {
         console.log(info);
         if(info !=undefined){
-            var result = engine.prototype.sendEvent(JSON.stringify(info.Score));
-            console.log(result)
+            if(info.endPosition){
+                var result = engine.prototype.sendEvent(JSON.stringify(info));
+                console.log("111111")
+            }else{
+                var result = engine.prototype.sendEvent(JSON.stringify(info.Score));
+                console.log(result)
+            }
+
         }
-        
+
         // this.labelLog('你准备使出一招：' + 0);
         // this.engineCode(result, 'sendEvent');
     },
@@ -185,55 +235,45 @@ cc.Class({
      * @param eventInfo
      */
     sendEventNotify(eventInfo) {
+        let getPosition = JSON.parse(eventInfo.cpProto);
+        if(getPosition.endPosition){
+            console.log("000000")
+            this.synMove(eventInfo.cpProto);
+        }else{
+            this.refreshScore(eventInfo)
+        }
         console.log(eventInfo);
-        this.refreshScore(eventInfo)
+
         console.log('sendEventNotify：用户' + eventInfo.srcUserID + '对你使出了一招' + eventInfo.cpProto);
     },
     //玩家得分
     refreshScore: function (event) {
         console.log(event)
         console.log(this.userScores)
+        console.log(parseInt(event.cpProto))
+        let selfLevel = parseInt(event.cpProto);
         if (event !== undefined) {
-            this.scoreDisplays = [this.scoreDisplays0,this.scoreDisplays1];
-            for (let i = 0; i < this.players.length; i++) {
-                // (!_that.players[i]) && (_that.players[i] = _that.node.getChildByName("Player" + (i + 1)).node);
-                var lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
-                 console.log(lableId)
-                //  console.log(GameData.userID)
-                if(lableId == event.srcUserID){
-                    console.log('店家')
-                    console.log(this.scoreDisplays0.string)
-                    this.scoreDisplays[i].string = event.cpProto
+            if(typeof selfLevel == "number"){
+                this.scoreDisplays = [this.scoreDisplays0,this.scoreDisplays1];
+                for (let i = 0; i < this.players.length; i++) {
+                    // (!_that.players[i]) && (_that.players[i] = _that.node.getChildByName("Player" + (i + 1)).node);
+                    var lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+                    console.log(lableId)
+                    //  console.log(GameData.userID)
+                    if(lableId == event.srcUserID){
+                        console.log('店家')
+                        console.log(this.scoreDisplays0.string)
+                        this.scoreDisplays[i].string = selfLevel;
+                    }
+
+
                 }
-               
-                
             }
-            // for (let i = 0; i < this.userScores.length;i++) {
-            //     if (event.srcUserID == this.userScores[i].userID) {
-                    
-            //         this.userScores[i].Score ++;
-            //         this.scoreDisplays[i].string = this.userScores[i].Score;
-            //     }
-            // }
-            
+
+
         }
     },
-    initMatchvsEvent(self) {
-        //在应用开始时手动绑定一下所有的回调事件
-        response.prototype.bind();
-        response.prototype.init(self);
-        this.node.on(msg.MATCHVS_SEND_EVENT_RSP, this.sendEventResponse, this);
-        this.node.on(msg.MATCHVS_SEND_EVENT_NOTIFY, this.sendEventNotify, this);
-    },
 
-    /**
-     * 移除监听
-     */
-    removeEvent() {
-        this.node.off(msg.MATCHVS_SEND_EVENT_RSP, this.sendEventResponse, this);
-        this.node.off(msg.MATCHVS_SEND_EVENT_NOTIFY, this.sendEventNotify, this);
-    },
-    
     getDistance:function(start,end){
         var pos = cc.v2(start.x - end.x , start.y - end.y);
         var dis = Math.sqrt(pos.x*pos.x + pos.y * pos.y);
@@ -270,121 +310,5 @@ cc.Class({
         }
         return 90 - angle;
     },
-    /**
-     * 注册对应的事件监听和把自己的原型传递进入，用于发送事件使用
-     */
-    
-    
 
-    /**
-     * 设置帧率
-     */
-    setFrameRate () {
-        let result = engine.prototype.setFrameSync(GLB.FRAME_RATE);
-        if (result !== 0) {
-            this.labelLog('设置帧同步率失败,错误码:' + result);
-        }
-    },
-
-    update: function (dt) {
-        if (this.timer > this.gameTime)
-            if(!GLB.isGameOver) {
-                this.gameOver();
-            }
-        this.timer += dt
-    },
-
-    setFrameSyncResponse: function (rsp) {
-        this.labelLog('setFrameSyncResponse, status=' + rsp.detail.status);
-        if (rsp.detail.status !== 200) {
-            this.labelLog('设置同步帧率失败，status=' + rsp.status);
-        } else {
-            this.labelLog('设置同步帧率成功, 帧率为:' + GLB.FRAME_RATE);
-        }
-    },
-
-    subscribeEventGroupResponse: function (status, groups) {
-        this.labelLog("[Rsp]subscribeEventGroupResponse:status=" + status + " groups=" + groups);
-    },
-
-    sendEventGroupResponse: function (status, dstNum) {
-        this.labelLog("[Rsp]sendEventGroupResponse:status=" + status + " dstNum=" + dstNum);
-    },
-
-    
-    
-
-    // 更新每个玩家的移动方向
-    updatePlayerMoveDirection: function (event) {
-        if (event.userID !== GLB.userID) {
-            let player = this.getPlayerByUserId(event.userID);
-            if (player) {
-                player.onPostionChanged(event.x, event.arrow);
-            } else {
-                console.warn("Not Found the user:" + event.userID);
-            }
-        }
-    },
-
-    getPlayerByUserId: function (userId) {
-        for (let i = 0; i < this.players.length; i++) {
-            if (this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string == userId) {
-                return this.players[i].getComponent("Player");
-            }
-        }
-    },
-
-    
-
-    /**
-     * 发送创建星星事件
-     */
-    spawnNewStar: function () {
-        if (!GLB.isRoomOwner)
-            return;    // 只有房主可创建星星
-
-        let event = {
-            action: msg.EVENT_NEW_START,
-            position: this.getNewStarPosition()
-        };
-        let result = engine.prototype.sendEvent(JSON.stringify(event))
-        if (result !== 0)
-            return console.error('创建星星事件发送失败');
-
-        this.createStarNode(event.position);
-        console.log('创建星星');
-    },
-
-    // 随机返回'新的星星'的位置
-    getNewStarPosition: function () {
-        let randX = this.randomMinus1To1() * this.starMaxX;
-        let randY = -90;
-        return cc.v2(randX, randY)
-    },
-
-
-    
-
-    // 游戏结束
-    gameOver: function () {
-        GLB.isGameOver = true;
-        for (let i = 0, l = this.players.length; i < l; i++) {
-            this.players[i].stopAllActions();
-            this.players[i].destroy();
-        }
-        engine.prototype.leaveRoom();
-        cc.director.loadScene('Result');
-    },
-
-    labelLog: function (info) {
-        this.labelInfo.string += '\n' + info;
-    },
-
-    
-
-    
-
-    randomMinus1To1 :function() {
-        return 2 * (Math.random() - .5);
-    }
 });
