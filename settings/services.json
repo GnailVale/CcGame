@@ -1,0 +1,19 @@
+{
+	"game": {
+		"name": "jumpXLF",
+		"appid": "608233024",
+		"cid": "0"
+	},
+	"configs": [
+		{
+			"appid": "608233024",
+			"services": [
+				{
+					"service_id": "241",
+					"enable": true
+				}
+			]
+		}
+	],
+	"needExecNative": true
+}
