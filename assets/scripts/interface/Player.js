@@ -1,206 +1,132 @@
-// let GLB = require("Glb");
-// let engine = require("../MatchvsLib/MatchvsDemoEngine");
-// let msg = require("../MatchvsLib/MatvhvsMessage");
-// cc.Class({
-//     extends: cc.Component,
+var engine = require('../MatchvsLib/MatchvsEngine');
+var response = require("../MatchvsLib/MatchvsResponse");
+var GameData = require('../MatchvsLib/ExamplesData');
+cc.Class({
+    extends: cc.Component,
 
-//     properties: {
-//         // 跳跃音效资源
-//         // jumpAudio: {
-//         //     default: null,
-//         //     url: cc.AudioClip
-//         // },
+    properties: {
+        sendPos:"",
+    },
 
-//         // 暂存 Game 对象的引用
-//         game: {
-//             default: null,
-//             serializable: false,
-//         },
-//         // 引用星星预支资源
-//         starPrefab: {
-//             default: null,
-//             type: cc.Prefab
-//         },
-//         playerSpriteLeft: null,
-//         playerSpriteRight: null,
-//         rightAnim: null,
-//         leftAnim: null,
-//         animRight: null,
-//         animLeft: null,
-//         lastArrow: 0,
-//         isAllowInput: false,
-//         isUserInputing: 0,
-//         postionSampler: null,
-//         speed: 2,
-//         isDebug:false,
-//         userID:0,
-//         playerLabel:null,
-//         mouseListener:null,
-//         startPostion:0,
-//     },
+    onLoad: function () {
+        console.log("loading")
 
+        if(this.position != ""){
+            console.log(this.position);
+        }
 
-//     onPostionChanged(x, arrow) {
-//         try{
-//             this.playerSpriteRight.node.x = x;
-//             this.playerSpriteLeft.node.x = x;
-//             this.playAnimation(arrow);
-//             this.playerLabel.node.x = x;
-//         } catch(error){
-//             console.log(error.message);
-//         }
-//     },
+    },
+    //角色移动
+    movePlayer:function(nameStr,pos){
+        let nameAni = nameStr.getChildByName("AnimNode")
+        let start = nameAni.getPosition();
+        let end = pos;
+        console.log(start);
+        console.log(end);
+        let index = this.getDirection(start,end);
+        console.log(index);
+        // var animCtrl = nameStr.getComponent(cc.Animation);
+        let animCtrl = nameStr.getChildByName("AnimNode").getComponent(cc.Animation)
 
-//     getPostion: function () {
-//         return this.playerSpriteRight.node.x;
-//     },
+        let clips = animCtrl.getClips();
+        this.sendPos = {
+            "endPosition":end,
+            "index":index,
+            "userID":GameData.userID,
+        }
+        console.log(this.sendPos);
+        ///同步移动发送消息
+        this.sendEvent(this.sendPos);
 
-//     onLoad: function () {
-//         this.rightAnimNode = this.node.getChildByName("rightAnimNode");
-//         this.leftAnimNode = this.node.getChildByName("leftAnimNode");
-//         this.animRightComp = this.rightAnimNode.getComponent(cc.Animation);
-//         this.animLeftComp = this.leftAnimNode.getComponent(cc.Animation);
-//         this.playerSpriteRight = this.rightAnimNode.getComponent(cc.Sprite);
-//         this.playerSpriteLeft = this.leftAnimNode.getComponent(cc.Sprite);
-//         this.playerLabel = this.node.getChildByName("playerLabel").getComponent(cc.Label);
-//         let self = this;
-//         if (this.isAllowInput) {
-//             this.postionSampler = setInterval(function () {
-//                 if (GLB.isGameOver === true) {
-//                     // console.log("checked game(syncFrame) is over!, clearInterval:" + id);
-//                     clearInterval(self.postionSampler);
-//                     return;
-//                 }
-//                 let frameData = JSON.stringify({
-//                     "userID": GLB.userID,
-//                     "action": msg.EVENT_PLAYER_POSINTON_CHANGED,
-//                     "x": self.getPostion(),
-//                     "arrow": self.isUserInputing
-//                 });
-//                 let  x = self.getPostion();
-//                 // self.node.parent.getComponent("Game").node.emit(msg.PLAYER_POSINTON, {x:x,type:msg.PLAYER_POSINTON});
-//                 let event = new cc.Event(msg.PLAYER_POSINTON,true);
-//                 event["data"] = {x:x,type:msg.PLAYER_POSINTON};
-//                 cc.systemEvent.dispatchEvent(event);
-//                 // if (self.isDebug){
-//                 //     self.node.parent.getComponent("Game").onNewWorkGameEvent({"cpProto":frameData}); //remove me, This is for Test only
-//                 // } else  {
-//                 //     engine.prototype.sendEvent(frameData);
-//                 // }
-//                 if (GLB.syncFrame === true) {
-//                     engine.prototype.sendFrameEvent(frameData);
-//                 } else {
-//                     engine.prototype.sendEvent(frameData);
-//                 }
+        if(animCtrl.currentClip == null || animCtrl.currentClip.name != clips[index].name ){
+            animCtrl.play(clips[index].name);
+        }
+        ////y 轴超过某个区域后不移动
+        this.moveToPoint(end,animCtrl);
+        // if(end.y > -180 && end.y < 140){
+        //
+        // }
 
-//             }, 1000 / GLB.FPS);
-//             // 初始化键盘输入监听
-//             this.addEventManageListener();
-//         }
-//     },
+    },
+    updateScore:function(nameStr){
+        let nameAni = nameStr.getChildByName("AnimNode")
+        console.log((nameAni.g))
+    },
 
 
-//     playAnimation: function (arrow) {
-//         try{
-//             if (arrow === GLB.ARROW_STOP) {
-//                 this.animRightComp.stop();
-//                 this.animLeftComp.stop();
-//                 this.lastArrow = GLB.ARROW_STOP;
-//             } else if (arrow === GLB.ARROW_RIGHT) {
-//                 if (this.lastArrow !== GLB.ARROW_RIGHT) {
-//                     this.animLeftComp.stop();
-//                     this.animRightComp.play();
-//                     this.rightAnimNode.active = true;
-//                     this.leftAnimNode.active = false;
-//                 }
-//                 this.lastArrow = GLB.ARROW_RIGHT;
-//             } else if (arrow === GLB.ARROW_LEFT) {
-//                 if (this.lastArrow !== GLB.ARROW_LEFT) {
-//                     this.animLeftComp.play();
-//                     this.animRightComp.stop();
-//                     this.rightAnimNode.active = false;
-//                     this.leftAnimNode.active = true;
-//                 }
-//                 this.lastArrow = GLB.ARROW_LEFT;
-//             } else {
-//                 console.warn("unknown arrow");
-//             }
-//         } catch(error){
-//             console.log(error.message);
-//         }
+    /**
+     * 发送信息
+     */
+    sendEvent(info) {
+        console.log(info);
+        if(info !=undefined){
+            if(info.endPosition){
+                var result = engine.prototype.sendEvent(JSON.stringify(info));
+                console.log(result)
+            }else{
+                var result = engine.prototype.sendEvent(JSON.stringify(info.Score));
+                console.log(result)
+            }
 
-//     },
-//     onTouch : function (touch) {
-//         let self = this;
-//         try{
-//             let touchLoc = touch.getLocation();
-//             if (touchLoc.x >= cc.winSize.width / 3) {
-//                 self.isUserInputing = GLB.ARROW_RIGHT;
-//                 self.onPostionChanged(self.playerSpriteRight.node.x + self.speed, self.isUserInputing);
-//             } else {
-//                 self.isUserInputing = GLB.ARROW_LEFT;
-//                 self.onPostionChanged(self.playerSpriteRight.node.x - self.speed, self.isUserInputing);
-//             }
-//         } catch(error){
-//             console.warn(error.message);
-//             cc.eventManager.removeListener(self.mouseListener);
-//             self.addEventManageListener();
-//         }
+        }
+    },
 
-//     },
-
-//     //2.0 需要手动移除
-//     addEventManageListener :function() {
-//         try{
-//             let self = this;
-//             if (this.mouseListener != null) {
-//                 cc.eventManager.removeListener(this.mouseListener);
-//             }
-//             this.mouseListener = cc.eventManager.addListener({
-//                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
-//                 fakeMove: null,
-//                 onTouchBegan: function (touch) {
-//                     console.log("begin move ");
-//                     self.onTouch(touch);
-//                     if (this.fakeMove == null) {
-//                         this.fakeMove = setInterval(function () {
-//                             self.onTouch(touch);
-//                         },GLB.FPS);
-//                     }
-//                     return true;
-//                 },
-//                 onTouchMoved: function () {
-//                     // onTouch(touch);
-//                     return true;
-//                 },
-//                 onTouchEnded: function () {
-//                     console.log("begin let go");
-//                     clearInterval(this.fakeMove);
-//                     this.fakeMove = null;
-//                     self.isUserInputing = GLB.ARROW_STOP;
-//                     self.onPostionChanged(self.playerSpriteRight.node.x, self.isUserInputing);
-//                 }
-//             }, self.node);
-//         } catch(error){
-//             console.log(error.message);
-//         }
-//     },
+    moveToPoint:function(point,nameStr){
+        console.log(point);
+        console.log(nameStr);
+        var start = nameStr.node.getPosition();
+        if(this.m_moveToAction != null){
+            nameStr.node.stopAction(this.m_moveToAction)
+        }
+        //匀速 v=s/t,t=s/v
+        var dis = this.getDistance(start , point);
+        var t = dis / 100;
+        this.m_moveToAction = cc.moveTo(t, point);
+        // 执行动作
+        nameStr.node.runAction(this.m_moveToAction);
+    },
+    getDistance:function(start,end){
+        var pos = cc.v2(start.x - end.x , start.y - end.y);
+        var dis = Math.sqrt(pos.x*pos.x + pos.y * pos.y);
+        return dis;
+    },
+    getDirection:function(start,end){
+        var rot = this.getAngle(start,end);
+        console.log(rot);
+        if(rot > -45 && rot < 45){
+            return 0;
+        }else if( rot > 45 && rot < 135){
+            return 1;
+        }else if( rot > 135 && rot < 225){
+            return 2;
+        }else {
+            return 3;
+        }
+    },
+    getAngle:function(start,end){
+        //两点的x,y值
+        var x = end.x - start.x;
+        var y = end.y - start.y;
+        var hypotenuse = Math.sqrt(x * x + y * y);
+        //斜边长度
+        var cos = x / hypotenuse;
+        var radian = Math.acos(cos);
+        //求出弧度
+        var angle = 180 /(Math.PI / radian);
+        //用弧度计算角度
+        if( y < 0){
+            angle = 0-angle;
+        }else if( y == 0 && x < 0){
+            angle = 180;
+        }
+        return 90 - angle;
+    },
+    // update:function () {
+    //     if(this.position != ""){
+    //         console.log(this.position);
+    //     }
+    // }
 
 
-//     // 随机返回'新的星星'的位置
-//     getNewStarPosition: function () {
-//         let randX = cc.randomMinus1To1() * this.starMaxX;
-//         let randY = -90;
-//         return cc.p(randX, randY)
-//     },
+});
 
-
-
-
-
-//     onDestroy: function () {
-//         cc.eventManager.removeListener(this.mouseListener);
-//         console.log("人物节点销毁");
-//         this.postionSampler && clearInterval(this.postionSampler);
-//     }
-// });
