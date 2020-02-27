@@ -7,7 +7,7 @@ var response = require("../MatchvsLib/MatchvsResponse");
 var msg = require("../MatchvsLib/MatvhsvsMessage");
 var GameData = require('../MatchvsLib/ExamplesData');
 
-cc.Class({
+var GameManager = cc.Class({
     extends: cc.Component,
 
     properties: {
@@ -57,23 +57,9 @@ cc.Class({
         this.userScores.push(myScorce);
         this.scoreDisplays = [this.scoreDisplays0,this.scoreDisplays1];
         // console.log(this.userScore);
-        this.giveFood.on(cc.Node.EventType.TOUCH_END,function(event){
-
-            for (let i = 0; i < _that.players.length; i++) {
-                // (!_that.players[i]) && (_that.players[i] = _that.node.getChildByName("Player" + (i + 1)).node);
-                var lableId = _that.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
-                console.log(lableId)
-                //  console.log(GameData.userID)
-                if(lableId == "我"){
-                    // console.log('店家')
-                    // console.log(_that.scoreDisplays0.string)
-                    _that.userScores[i].Score++;
-                    _that.scoreDisplays[i].string = _that.userScores[i].Score ;
-                }
-
-                _that.sendEvent(_that.userScores[i]);
-
-            }
+        this.giveFood.on(cc.Node.EventType.TOUCH_END,(event)=>{
+            this.point();
+           
         })
 
         // this.moveObj(this.players[1])
@@ -85,11 +71,24 @@ cc.Class({
                 // console.log(this.players[i])
                 this.moveObj(this.players[i])
             }
-
         }
-
-
-
+    },
+    point(){
+      console.log('得分')
+      var _that = this;
+      for (let i = 0; i < _that.players.length; i++) {
+        // (!_that.players[i]) && (_that.players[i] = _that.node.getChildByName("Player" + (i + 1)).node);
+        var lableId = _that.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+        console.log('id',lableId)
+        //  console.log(GameData.userID)
+        if(lableId == "我"){
+            // console.log('店家')
+            // console.log(_that.scoreDisplays0.string)
+            _that.userScores[i].Score++;
+            _that.scoreDisplays[i].string = _that.userScores[i].Score ;
+        }
+        _that.sendEvent(_that.userScores[i]);
+    }
     },
     initMatchvsEvent(self) {
         //在应用开始时手动绑定一下所有的回调事件
@@ -312,3 +311,5 @@ cc.Class({
     },
 
 });
+
+module.exports = GameManager

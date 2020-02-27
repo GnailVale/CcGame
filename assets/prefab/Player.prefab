@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Player",
+    "_name": "Player1",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -24,7 +24,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 12
+      "__id__": 13
     },
     "_opacity": 255,
     "_color": {
@@ -95,10 +95,13 @@
       },
       {
         "__id__": 10
+      },
+      {
+        "__id__": 11
       }
     ],
     "_prefab": {
-      "__id__": 11
+      "__id__": 12
     },
     "_opacity": 255,
     "_color": {
@@ -122,8 +125,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        0,
-        0,
+        -74.266,
+        33.292,
         0,
         0,
         0,
@@ -249,7 +252,7 @@
     "asset": {
       "__uuid__": "2e993822-ee8b-4b67-bfc6-6b700ec6696a"
     },
-    "fileId": "84MYKKpwRKSKgVhLFQJvWz",
+    "fileId": "a4MnE0x6ZKS7TfomkdfvOT",
     "sync": false
   },
   {
@@ -354,7 +357,7 @@
     "asset": {
       "__uuid__": "2e993822-ee8b-4b67-bfc6-6b700ec6696a"
     },
-    "fileId": "7dVdYASa9AQ6tRpe1JpjWy",
+    "fileId": "f7vpfna49IMK1izIKfdz4t",
     "sync": false
   },
   {
@@ -417,6 +420,27 @@
       }
     ],
     "playOnLoad": true,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.BoxCollider",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "tag": 0,
+    "_offset": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_size": {
+      "__type__": "cc.Size",
+      "width": 22,
+      "height": 32
+    },
     "_id": ""
   },
   {
