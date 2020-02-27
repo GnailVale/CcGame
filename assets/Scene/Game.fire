@@ -91,6 +91,9 @@
       },
       {
         "__id__": 14
+      },
+      {
+        "__id__": 15
       }
     ],
     "_prefab": null,
@@ -639,11 +642,13 @@
     "player_prefab": {
       "__uuid__": "2e993822-ee8b-4b67-bfc6-6b700ec6696a"
     },
+    "effect_prefab": null,
     "autoLoad": true,
+    "effectLoad": true,
     "giveFood": {
       "__id__": 7
     },
-    "Players": [],
+    "players": [],
     "useridLabel": {
       "__id__": 12
     },
@@ -652,6 +657,7 @@
     },
     "score": 0,
     "userScores": [],
+    "myScore": "",
     "sendPos": "",
     "_id": "7cCYco1w9ET6a2I5tFJwo5"
   },
@@ -668,7 +674,7 @@
     },
     "foodCount": 8,
     "gap": 100,
-    "foodSize": 22,
-    "_id": "ca//lGRFlLzq72KFiucw26"
+    "foodSize": 56,
+    "_id": "08h1NydclEFK9LK+jVoYPJ"
   }
 ]

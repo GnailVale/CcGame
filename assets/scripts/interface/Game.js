@@ -16,7 +16,12 @@ var GameManager = cc.Class({
             type: cc.Prefab,
             default: null,
         },
+        effect_prefab:{
+            type: cc.Prefab,
+            default: null,
+        },
         autoLoad: true,   //自动加载
+        effectLoad:true,
         giveFood:cc.Node,
         players:[],
         useridLabel: {
@@ -48,7 +53,19 @@ var GameManager = cc.Class({
                 }
             }
 
+            this.players[0].getChildByName("AnimNode").setPosition(cc.v2(-50,50));
+
         }
+
+        //碰撞效果
+        // if(this.effectLoad){
+        //     let effectPrefab = cc.instantiate(this.effect_prefab);
+        //     effectPrefab.parent = this.parent || this.node;
+        //
+        //     let animCtrl = effectPrefab.getComponent(cc.Animation);
+        //     animCtrl.play('crash');
+        //     console.log(animCtrl);
+        // }
 
         ///控制角色移动
         this.node.on('touchstart', function (event) {
@@ -110,11 +127,13 @@ var GameManager = cc.Class({
 
     //实例化预制件，设置父节点
     loadPrefab() {
-        let node = cc.instantiate(this.player_prefab);
+        let playerPrefab = cc.instantiate(this.player_prefab);
+
         //当父节点不存在时，使用当前组件为父节点
-        node.parent = this.parent || this.node;
+        playerPrefab.parent = this.parent || this.node;
         // console.log(node.parent);
     },
+
 
     initMatchvsEvent(self) {
         //在应用开始时手动绑定一下所有的回调事件
