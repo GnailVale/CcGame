@@ -6,11 +6,12 @@ cc.Class({
 
     properties: {
         sendPos:"",
+        info:'',
     },
 
     onLoad: function () {
         console.log("loading")
-
+        console.log(this.info);
         if(this.position != ""){
             console.log(this.position);
         }
@@ -18,7 +19,7 @@ cc.Class({
     },
     //角色移动
     movePlayer:function(nameStr,pos){
-        let nameAni = nameStr.getChildByName("AnimNode")
+        let nameAni = nameStr
         let start = nameAni.getPosition();
         let end = pos;
         console.log(start);
@@ -26,7 +27,7 @@ cc.Class({
         let index = this.getDirection(start,end);
         console.log(index);
         // var animCtrl = nameStr.getComponent(cc.Animation);
-        let animCtrl = nameStr.getChildByName("AnimNode").getComponent(cc.Animation)
+        let animCtrl = nameStr.getComponent(cc.Animation)
 
         let clips = animCtrl.getClips();
         this.sendPos = {
@@ -49,7 +50,7 @@ cc.Class({
 
     },
     updateScore:function(nameStr){
-        let nameAni = nameStr.getChildByName("AnimNode")
+        let nameAni = nameStr
         console.log((nameAni.g))
     },
 

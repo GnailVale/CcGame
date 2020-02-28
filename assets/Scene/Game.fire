@@ -640,7 +640,7 @@
     },
     "_enabled": true,
     "player_prefab": {
-      "__uuid__": "2e993822-ee8b-4b67-bfc6-6b700ec6696a"
+      "__uuid__": "03b33fc6-d502-416d-a655-b305138b705b"
     },
     "effect_prefab": null,
     "autoLoad": true,

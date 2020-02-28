@@ -53,7 +53,7 @@ var GameManager = cc.Class({
                 }
             }
 
-            this.players[0].getChildByName("AnimNode").setPosition(cc.v2(-50,50));
+            this.players[0].setPosition(cc.v2(-50,50));
 
         }
 
@@ -72,11 +72,12 @@ var GameManager = cc.Class({
             var pos = event.getLocation();
             pos = this.node.convertToNodeSpaceAR(pos);
             for (let i = 0; i < this.players.length; i++) {
-                var lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+                var lableId = this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string;
                 console.log(lableId)
                  console.log(GameData.userID)
                 if(lableId == "我"){
                     if(pos.y > -180 && pos.y < 140){
+                        console.log(this.players[i])
                         this.players[i].getComponent("Player").movePlayer(this.players[i],pos);
                     }
 
@@ -92,7 +93,7 @@ var GameManager = cc.Class({
 
         for (let i = 0; i < GameData.totolUser.length; i++) {
             if(GameData.totolUser[i].userID !=GameData.userID){
-                this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string = GameData.totolUser[i].userID;
+                this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string = GameData.totolUser[i].userID;
             }
 
         }
@@ -107,12 +108,12 @@ var GameManager = cc.Class({
         this.giveFood.on(cc.Node.EventType.TOUCH_END,function(event){
 
             for (let i = 0; i < _that.players.length; i++) {
-                var lableId = _that.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+                var lableId = _that.players[i].getChildByName("playerLabel").getComponent(cc.Label).string;
                 console.log(lableId)
                 //  console.log(GameData.userID)
                 if(lableId == "我"){
                     _that.myScore.Score ++ ;
-                    _that.players[i].getChildByName("AnimNode").getChildByName("dogLevel").getComponent(cc.Label).string = _that.myScore.Score;
+                    _that.players[i].getChildByName("dogLevel").getComponent(cc.Label).string = _that.myScore.Score;
                     _that.sendEvent(_that.myScore);
 
                 }
@@ -128,7 +129,7 @@ var GameManager = cc.Class({
     //实例化预制件，设置父节点
     loadPrefab() {
         let playerPrefab = cc.instantiate(this.player_prefab);
-
+        // playerPrefab.getComponent(cc.Label).info='文字';
         //当父节点不存在时，使用当前组件为父节点
         playerPrefab.parent = this.parent || this.node;
         // console.log(node.parent);
@@ -155,14 +156,14 @@ var GameManager = cc.Class({
     synMove:function(param){
         let getparam = JSON.parse(param);
         for(let i=0;i<this.players.length;i++){
-            let lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+            let lableId = this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string;
             if(lableId == getparam.userID){
                 console.log("同步移动");
                 // let moveTo1 = cc.moveTo(1,getparam.endPosition);
-                // this.players[i].getChildByName("AnimNode").runAction(moveTo1);
+                // this.players[i].runAction(moveTo1);
 
                 let index = getparam.index;
-                let animCtrl = this.players[i].getChildByName("AnimNode").getComponent(cc.Animation)
+                let animCtrl = this.players[i].getComponent(cc.Animation)
                 let clips = animCtrl.getClips();
 
                 if(animCtrl.currentClip == null || animCtrl.currentClip.name != clips[index].name ){
@@ -227,11 +228,11 @@ var GameManager = cc.Class({
         if (event !== undefined) {
             if(typeof selfLevel == "number"){
                 for (let i = 0; i < this.players.length; i++) {
-                    var lableId = this.players[i].getChildByName("AnimNode").getChildByName("playerLabel").getComponent(cc.Label).string;
+                    var lableId = this.players[i].getChildByName("playerLabel").getComponent(cc.Label).string;
                     console.log(lableId)
                     //  console.log(GameData.userID)
                     if(lableId == event.srcUserID){
-                        this.players[i].getChildByName("AnimNode").getChildByName("dogLevel").getComponent(cc.Label).string = selfLevel;
+                        this.players[i].getChildByName("dogLevel").getComponent(cc.Label).string = selfLevel;
                     }
 
                 }
