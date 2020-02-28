@@ -22,7 +22,6 @@ cc.Class({
   onCollisionEnter: function(other, self) {
     console.log("on collision enter");
     if(other.node.group == 'food'){
-      cc.find('Canvas').getComponent(Game1).point()
     }
   },
   /**
