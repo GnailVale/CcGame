@@ -1,6 +1,7 @@
 var engine = require('../MatchvsLib/MatchvsEngine');
 var response = require("../MatchvsLib/MatchvsResponse");
 var GameData = require('../MatchvsLib/ExamplesData');
+import randomFood from 'randomFood'
 cc.Class({
     extends: cc.Component,
 
@@ -29,9 +30,18 @@ cc.Class({
      * @param  {Collider} self  产生碰撞的自身的碰撞组件
      */
     onCollisionEnter: function(other, self) {
+        console.log(other)
+        let playerLabel = self.node.getChildByName("playerLabel").getComponent(cc.Label).string;
+        console.log(other.node.getPosition());
+          self.node.getChildByName("dogLevel").getComponent(cc.Label).string ++;
+        console.log(self.node.getChildByName("dogLevel").getComponent(cc.Label).string)
       console.log("on collision enter");
+        console.log()
       if(other.node.group == 'food'){
-        cc.find('Canvas').getComponent(Game1).point()
+          let lostPosition = other.node.getPosition()
+          let totolfood = cc.find('Canvas').getComponent("randomFood").foodPosition();
+          // cc.find('Canvas').getComponent("randomFood").lostFood(totolfood,lostPosition);
+        // cc.find('Canvas').getComponent(Game1).point()
       }
     },
     //角色移动

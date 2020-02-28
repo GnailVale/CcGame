@@ -34,12 +34,14 @@ cc.Class({
     foodCount: 8,
     gap: 100,
     foodSize: 56,
+    foodPos:[]
   },
   newFood: function(pos) {
-  
+    console.log(pos);
+    this.foodPos.push(pos);
     var scene = cc.director.getScene();
     var node = cc.instantiate(this.food_target);
- 
+
     node.parent = scene;
     node.setPosition(pos);
   },
@@ -67,6 +69,25 @@ cc.Class({
     }
     arrpos.sort(() => Math.random() - 0.5);
     return arrpos;
+  },
+  ///食物消失执行的函数
+  lostFood:function(totol,lost){
+    // this.onLoad();
+    // console.log(totol)
+    // console.log(lost)
+    // for( let i=0;i<this.foodPos.length;i++){
+    //   if(this.foodPos[i].x == lost.x && this.foodPos[i].y == lost.y){
+    //     this.foodPos.splice(i,1)
+    //     // console.log(this.foodPos[i])
+    //   }
+    // }
+    // var randomItem = totol[Math.floor(Math.random() * totol.length)];
+    // console.log(randomItem)
+    // this.foodPos.push(randomItem)
+    // console.log(this.foodPos)
+    // for (var i = 0; i < 3; i++) {
+    //   this.newFood(this.foodPos[i]);
+    // }
   },
   // LIFE-CYCLE CALLBACKS:
   onLoad() {
