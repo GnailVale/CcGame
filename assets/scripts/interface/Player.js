@@ -43,7 +43,9 @@ cc.Class({
           // setTimeout(()=>{
           //
           // },1000)
-          other.node.active = false;
+          // other.node.active = false;
+          other.node.destroy();//直接销毁节点，最具有效率的方式
+          other.node.removeFromParent();//移除与父节点的引用
           console.log(other.node)
           let totolPositionn =GameData.foodPosition;
           let randomItem = totolPositionn[Math.floor(Math.random() * totolPositionn.length)];
