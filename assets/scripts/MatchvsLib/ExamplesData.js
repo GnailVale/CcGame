@@ -20,6 +20,7 @@ var GameData = {
     avatar: "",
     host: "",
     isPAAS: false,
+    foodPosition:[],
     reset: function () {
         GameData.gameID = "";
         GameData.appKey = "";

@@ -2,12 +2,14 @@ var engine = require('../MatchvsLib/MatchvsEngine');
 var response = require("../MatchvsLib/MatchvsResponse");
 var GameData = require('../MatchvsLib/ExamplesData');
 import randomFood from 'randomFood'
+import Game1 from 'Game';
 cc.Class({
     extends: cc.Component,
 
     properties: {
         sendPos:"",
         info:'',
+        dogLevel:0
     },
 
     onLoad: function () {
@@ -30,18 +32,44 @@ cc.Class({
      * @param  {Collider} self  产生碰撞的自身的碰撞组件
      */
     onCollisionEnter: function(other, self) {
-        console.log(other)
-        let playerLabel = self.node.getChildByName("playerLabel").getComponent(cc.Label).string;
-        console.log(other.node.getPosition());
-          self.node.getChildByName("dogLevel").getComponent(cc.Label).string ++;
-        console.log(self.node.getChildByName("dogLevel").getComponent(cc.Label).string)
+        // console.log(other)
+
+          // self.node.getChildByName("dogLevel").getComponent(cc.Label).string ++;
+        console.log(this.dogLevel)
       console.log("on collision enter");
         console.log()
       if(other.node.group == 'food'){
-          let lostPosition = other.node.getPosition()
-          let totolfood = cc.find('Canvas').getComponent("randomFood").foodPosition();
-          // cc.find('Canvas').getComponent("randomFood").lostFood(totolfood,lostPosition);
-        // cc.find('Canvas').getComponent(Game1).point()
+          let lostPosition = other.node.getPosition();
+          // setTimeout(()=>{
+          //
+          // },1000)
+          other.node.active = false;
+          console.log(other.node)
+          let totolPositionn =GameData.foodPosition;
+          let randomItem = totolPositionn[Math.floor(Math.random() * totolPositionn.length)];
+          console.log(randomItem)
+          console.log(GameData.foodPosition);
+          let playerLabel = self.node.getChildByName("playerLabel").getComponent(cc.Label).string;
+          console.log(playerLabel);
+          if(playerLabel == '我'){
+              this.dogLevel ++;
+              self.node.getChildByName("dogLevel").getComponent(cc.Label).string ++;
+              let sendfoodaAndScore = {
+                  "userID":GameData.userID,
+                  "showFood":randomItem,
+                  "Score":self.node.getChildByName("dogLevel").getComponent(cc.Label).string,
+              }
+              console.log(sendfoodaAndScore);
+
+              this.sendEvent(sendfoodaAndScore);
+              // let totolfood = cc.find('Canvas').getComponent("randomFood").foodPosition();
+              // cc.find('Canvas').getComponent("randomFood").lostFood(totolfood,lostPosition);
+              setTimeout(()=>{
+                  cc.find('Canvas').getComponent(Game1).newFood(randomItem)
+              },500)
+          }
+
+
       }
     },
     //角色移动
@@ -91,8 +119,12 @@ cc.Class({
             if(info.endPosition){
                 var result = engine.prototype.sendEvent(JSON.stringify(info));
                 console.log(result)
-            }else{
-                var result = engine.prototype.sendEvent(JSON.stringify(info.Score));
+            }else if(info.showFood){
+                var result = engine.prototype.sendEvent(JSON.stringify(info));
+                console.log(result)
+            }
+            else{
+                var result = engine.prototype.sendEvent(info.Score);
                 console.log(result)
             }
 

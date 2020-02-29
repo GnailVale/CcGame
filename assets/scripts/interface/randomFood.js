@@ -8,7 +8,7 @@
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] https://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-cc.Class({
+var randomFood = cc.Class({
   extends: cc.Component,
 
   properties: {
@@ -36,15 +36,15 @@ cc.Class({
     foodSize: 56,
     foodPos:[]
   },
-  newFood: function(pos) {
-    console.log(pos);
-    this.foodPos.push(pos);
-    var scene = cc.director.getScene();
-    var node = cc.instantiate(this.food_target);
-
-    node.parent = scene;
-    node.setPosition(pos);
-  },
+  // newFood: function(pos) {
+  //   console.log(pos);
+  //   this.foodPos.push(pos);
+  //   var scene = cc.director.getScene();
+  //   var node = cc.instantiate(this.food_target);
+  //
+  //   node.parent = scene;
+  //   node.setPosition(pos);
+  // },
   foodPosition: function() {
     let gap = this.gap;
     var mosterSize = this.foodSize;
@@ -91,12 +91,14 @@ cc.Class({
   },
   // LIFE-CYCLE CALLBACKS:
   onLoad() {
-    var posArr = this.foodPosition();
-    for (var i = 0; i < 3; i++) {
-      this.newFood(posArr[i]);
-    }
+    // var posArr = this.foodPosition();
+    // for (var i = 0; i < 3; i++) {
+    //   this.newFood(posArr[i]);
+    // }
   },
 
   start() {}
   // update (dt) {},
 });
+
+module.export  = randomFood;

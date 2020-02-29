@@ -20,6 +20,10 @@ var GameManager = cc.Class({
             type: cc.Prefab,
             default: null,
         },
+        food_prefab:{
+            type: cc.Prefab,
+            default: null,
+        },
         autoLoad: true,   //自动加载
         effectLoad:true,
         giveFood:cc.Node,
@@ -36,10 +40,30 @@ var GameManager = cc.Class({
         userScores:[],
         myScore:"",
         sendPos:"",
+        foodCount: 8,
+        gap: 100,
+        foodSize: 56,
     },
 
 
     onLoad: function () {
+        console.log(GameData)
+        //加载食物
+        let posArr = GameData.foodPosition;
+        console.log(posArr)
+        for (let i = 0; i < 3; i++) {
+          this.newFood(posArr[i]);
+        }
+        // let foodNode = cc.instantiate(this.food_prefab);
+        // foodNode.parent = this.parent || this.node;
+        //
+        // let posArr = this.foodPosition();
+        // console.log(posArr);
+        // for (let i = 0; i < 3; i++) {
+        //     foodNode.setPosition(posArr[i]);
+        // }
+        // foodNode.setPosition(cc.v2(312,156));
+
         //加载预制体
         if (this.autoLoad) {
             for(let i=0;i<2;i++){
@@ -76,7 +100,7 @@ var GameManager = cc.Class({
                 console.log(lableId)
                  console.log(GameData.userID)
                 if(lableId == "我"){
-                    if(pos.y > -180 && pos.y < 140){
+                    if(pos.y > -180){
                         console.log(this.players[i])
                         this.players[i].getComponent("Player").movePlayer(this.players[i],pos);
                     }
@@ -112,7 +136,14 @@ var GameManager = cc.Class({
                 console.log(lableId)
                 //  console.log(GameData.userID)
                 if(lableId == "我"){
-                    _that.myScore.Score ++ ;
+                    let dogLevel = _that.players[i].getChildByName("dogLevel").getComponent(cc.Label).string;
+                    if(dogLevel == 0){
+                        _that.myScore.Score ++ ;
+                    }else{
+                        _that.myScore.Score = _that.players[i].getChildByName("dogLevel").getComponent(cc.Label).string;
+                        _that.myScore.Score++;
+                    }
+
                     _that.players[i].getChildByName("dogLevel").getComponent(cc.Label).string = _that.myScore.Score;
                     _that.sendEvent(_that.myScore);
 
@@ -135,7 +166,15 @@ var GameManager = cc.Class({
         // console.log(node.parent);
     },
 
+    newFood: function(pos) {
+      // console.log(pos);
+      // this.foodPos.push(pos);
+      var scene = cc.director.getScene();
+      var node = cc.instantiate(this.food_prefab);
 
+      node.parent = scene;
+      node.setPosition(pos);
+    },
     initMatchvsEvent(self) {
         //在应用开始时手动绑定一下所有的回调事件
         response.prototype.bind();
@@ -169,7 +208,7 @@ var GameManager = cc.Class({
                 if(animCtrl.currentClip == null || animCtrl.currentClip.name != clips[index].name ){
                     animCtrl.play(clips[index].name);
                 }
-                if(getparam.endPosition.y > -180 && getparam.endPosition.y < 140){
+                if(getparam.endPosition.y > -180){
                     this.players[i].getComponent("Player").moveToPoint(getparam.endPosition,animCtrl);
                 }
                 // this.moveToPoint(getparam.endPosition,animCtrl);
@@ -211,9 +250,20 @@ var GameManager = cc.Class({
      */
     sendEventNotify(eventInfo) {
         let getPosition = JSON.parse(eventInfo.cpProto);
+        console.log(getPosition)
         if(getPosition.endPosition){
             this.synMove(eventInfo.cpProto);
-        }else{
+        }else if(getPosition.showFood){
+            // console.log(getPosition.showFood);
+            setTimeout(()=>{
+                this.newFood(getPosition.showFood);
+                getPosition.cpProto = getPosition.Score;
+                getPosition.srcUserID = getPosition.userID;
+                this.refreshScore(getPosition);
+            },500)
+
+        }
+        else{
             this.refreshScore(eventInfo)
         }
 
@@ -241,6 +291,33 @@ var GameManager = cc.Class({
 
         }
     },
+
+    // foodPosition: function() {
+    //     let gap = this.gap;
+    //     var mosterSize = this.foodSize;
+    //     var mosterheight = Math.floor(cc.winSize.height);
+    //     var mosterWidth = Math.floor(cc.winSize.width);
+    //     //
+    //     let n = Math.floor(mosterheight / (mosterSize + gap));
+    //     let m = Math.floor(mosterWidth / (mosterSize + gap));
+    //     var arrpos = []; //创建一个数组
+    //     let k = 0;
+    //     let l = 0;
+    //     let o = 0;
+    //     //将坐标转化放置进数组内
+    //     for (let i = 0; i < n; i++) {
+    //         // k += mosterSize;
+    //         for (let j = 0; j < m; j++) {
+    //             l = (mosterSize+gap) * (j + 1);
+    //             k = (mosterSize + gap) * (i+1);
+    //             arrpos[o] = cc.v2(l, k);
+    //             o++;
+    //         }
+    //     }
+    //     console.log(arrpos);
+    //     // arrpos.sort(() => Math.random() - 0.5);
+    //     return arrpos;
+    // },
 
 
 });
